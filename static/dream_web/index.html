@@ -1,126 +1,339 @@
 <html lang="en">
-  <head>
+
+<head>
     <title>Stable Diffusion Dream Server</title>
     <meta charset="utf-8">
     <link rel="icon" type="image/x-icon" href="static/dream_web/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="static/dream_web/index.css">
+    <link rel="stylesheet" href="static/dream_web/fonts.css" />
+    <link rel="stylesheet" href="static/dream_web/index.css" />
     <script src="config.js"></script>
     <script src="static/dream_web/index.js"></script>
-  </head>
-  <body>
+</head>
+
+<body>
+
     <header>
-      <h1>Stable Diffusion Dream Server</h1>
-      <div id="about">
-        For news and support for this web service, visit our <a href="http://github.com/lstein/stable-diffusion">GitHub site</a>
-      </div>
+        <h1>Stable Diffusion</h1>
     </header>
 
     <main>
-      <form id="generate-form" method="post" action="#">
-	<fieldset id="txt2img">
-          <div id="search-box">
-            <textarea rows="3" id="prompt" name="prompt"></textarea>
-            <input type="submit" id="submit" value="Generate">
-	  </div>
-        </fieldset>
-        <fieldset id="fieldset-config">
-          <label for="iterations">Images to generate:</label>
-          <input value="1" type="number" id="iterations" name="iterations" size="4">
-          <label for="steps">Steps:</label>
-          <input value="50" type="number" id="steps" name="steps">
-          <label for="cfg_scale">Cfg Scale:</label>
-          <input value="7.5" type="number" id="cfg_scale" name="cfg_scale" step="any">
-          <label for="sampler_name">Sampler:</label>
-          <select id="sampler_name" name="sampler_name" value="k_lms">
-            <option value="ddim">DDIM</option>
-            <option value="plms">PLMS</option>
-            <option value="k_lms" selected>KLMS</option>
-            <option value="k_dpm_2">KDPM_2</option>
-            <option value="k_dpm_2_a">KDPM_2A</option>
-            <option value="k_euler">KEULER</option>
-	          <option value="k_euler_a">KEULER_A</option>
-            <option value="k_heun">KHEUN</option>
-          </select>
-          <input type="checkbox" name="seamless" id="seamless">
-	        <label for="seamless">Seamless circular tiling</label>
-          <br>
-          <label title="Set to multiple of 64" for="width">Width:</label>
-          <select id="width" name="width" value="512">
-            <option value="64">64</option> <option value="128">128</option>
-            <option value="192">192</option> <option value="256">256</option>
-            <option value="320">320</option> <option value="384">384</option>
-            <option value="448">448</option> <option value="512" selected>512</option>
-            <option value="576">576</option> <option value="640">640</option>
-            <option value="704">704</option> <option value="768">768</option>
-            <option value="832">832</option> <option value="896">896</option>
-            <option value="960">960</option> <option value="1024">1024</option>
-          </select>
-          <label title="Set to multiple of 64" for="height">Height:</label>
-          <select id="height" name="height" value="512">
-            <option value="64">64</option> <option value="128">128</option>
-            <option value="192">192</option> <option value="256">256</option>
-            <option value="320">320</option> <option value="384">384</option>
-            <option value="448">448</option> <option value="512" selected>512</option>
-            <option value="576">576</option> <option value="640">640</option>
-            <option value="704">704</option> <option value="768">768</option>
-            <option value="832">832</option> <option value="896">896</option>
-            <option value="960">960</option> <option value="1024">1024</option>
-          </select>
-          <label title="Set to -1 for random seed" for="seed">Seed:</label>
-          <input value="-1" type="number" id="seed" name="seed">
-          <button type="button" id="reset-seed">&olarr;</button>
-          <input type="checkbox" name="progress_images" id="progress_images">
-	  <label for="progress_images">Display in-progress images (slower)</label>
-	  <button type="button" id="reset-all">Reset to Defaults</button>
-	  <div id="variations">
-            <label title="If > 0, generates variations on the initial seed instead of random seeds per iteration. Must be between 0 and 1. Higher values will be more different." for="variation_amount">Variation amount (0 to disable):</label>
-            <input value="0" type="number" id="variation_amount" name="variation_amount" step="0.01" min="0" max="1">
-            <label title="list of variations to apply, in the format `seed:weight,seed:weight,..." for="with_variations">With variations (seed:weight,seed:weight,...):</label>
-            <input value="" type="text" id="with_variations" name="with_variations">
-	  </div>
-	  <div id="img2img">
-            <label title="Upload an image to use img2img" for="initimg">Initial image:</label>
-            <input type="file" id="initimg" name="initimg" accept=".jpg, .jpeg, .png">
-            <button type="button" id="remove-image">Remove Image</button>
-	    <br>
-	    <label for="strength">Img2Img Strength:</label>
-	    <input value="0.75" type="number" id="strength" name="strength" step="0.01" min="0" max="1">
-	    <input type="checkbox" id="fit" name="fit" checked>
-	    <label title="Rescale image to fit within requested width and height" for="fit">Fit to width/height:</label>
-	  </div>
-	</fieldset>
-        <fieldset id="gfpgan">
-          <label title="Strength of the gfpgan (face fixing) algorithm." for="gfpgan_strength">GPFGAN Strength (0 to disable):</label>
-          <input value="0.8" min="0" max="1" type="number" id="gfpgan_strength" name="gfpgan_strength" step="0.05">
-          <label title="Upscaling to perform using ESRGAN." for="upscale_level">Upscaling Level</label>
-          <select id="upscale_level" name="upscale_level" value="">
-            <option value="" selected>None</option>
-            <option value="2">2x</option>
-            <option value="4">4x</option>
-          </select>
-          <label title="Strength of the esrgan (upscaling) algorithm." for="upscale_strength">Upscale Strength:</label>
-          <input value="0.75" min="0" max="1" type="number" id="upscale_strength" name="upscale_strength" step="0.05">
-        </fieldset>
-      </form>
-      <br>
-      <section id="progress-section">
-        <div id="progress-container">
-          <progress id="progress-bar" value="0" max="1"></progress>
-          <span id="cancel-button" title="Cancel">&#10006;</span>
-          <br>
-          <img id="progress-image" src='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"/>'>
-          <div id="scaling-inprocess-message">
-            <i><span>Postprocessing...</span><span id="processing_cnt">1/3</span></i>
-          </div>
-        </div>
-      </section>
+        <form id="generate-form" method="post" action="#">
 
-      <div id="results">
-        <div id="no-results-message">
-          <i><p>No results...</p></i>
+            <!-- PROMPT -->
+            <fieldset id="txt2img">
+                <textarea rows="2" id="prompt" name="prompt"></textarea>
+                <button type="submit" id="submit">
+                    Generate
+                </button>
+                <input value="1" type="number" id="iterations" name="iterations" size="4">
+            </fieldset>
+
+            <!-- TODO: Queue prompts -->
+
+            <details id="fieldset-config-container">
+                <summary>
+                    <label for="fieldset-config">Settings</label>
+                    <small></small>
+                </summary>
+
+                <fieldset id="fieldset-config">
+                    <!-- <label for="iterations">Images to generate:</label> -->
+                    <!-- <input value="1" type="number" id="iterations" name="iterations" size="4"> -->
+                    <label for="steps">Steps:</label>
+                    <input value="50" type="number" id="steps" name="steps">
+                    <label for="cfg_scale">Cfg Scale:</label>
+                    <input value="7.5" type="number" id="cfg_scale" name="cfg_scale" step="any">
+                    <label for="sampler_name">Sampler:</label>
+                    <select id="sampler_name" name="sampler_name" value="k_lms">
+                        <option value="ddim">DDIM</option>
+                        <option value="plms">PLMS</option>
+                        <option value="k_lms" selected>KLMS</option>
+                        <option value="k_dpm_2">KDPM_2</option>
+                        <option value="k_dpm_2_a">KDPM_2A</option>
+                        <option value="k_euler">KEULER</option>
+                        <option value="k_euler_a">KEULER_A</option>
+                        <option value="k_heun">KHEUN</option>
+                    </select>
+                    <label for="seamless">Seamless circular tiling</label>
+                    <input type="checkbox" name="seamless" id="seamless">
+                    <br>
+                    <label title="Set to multiple of 64" for="width">Width:</label>
+                    <select id="width" name="width" value="512">
+                        <option value="64">64</option>
+                        <option value="128">128</option>
+                        <option value="192">192</option>
+                        <option value="256">256</option>
+                        <option value="320">320</option>
+                        <option value="384">384</option>
+                        <option value="448">448</option>
+                        <option value="512" selected>512</option>
+                        <option value="576">576</option>
+                        <option value="640">640</option>
+                        <option value="704">704</option>
+                        <option value="768">768</option>
+                        <option value="832">832</option>
+                        <option value="896">896</option>
+                        <option value="960">960</option>
+                        <option value="1024">1024</option>
+                    </select>
+                    <label title="Set to multiple of 64" for="height">Height:</label>
+                    <select id="height" name="height" value="512">
+                        <option value="64">64</option>
+                        <option value="128">128</option>
+                        <option value="192">192</option>
+                        <option value="256">256</option>
+                        <option value="320">320</option>
+                        <option value="384">384</option>
+                        <option value="448">448</option>
+                        <option value="512" selected>512</option>
+                        <option value="576">576</option>
+                        <option value="640">640</option>
+                        <option value="704">704</option>
+                        <option value="768">768</option>
+                        <option value="832">832</option>
+                        <option value="896">896</option>
+                        <option value="960">960</option>
+                        <option value="1024">1024</option>
+                    </select>
+
+                    <label title="Set to -1 for random seed" for="seed">Seed:</label>
+                    <section class="input-group">
+                        <input value="-1" type="number" id="seed" name="seed">
+                        <button type="button" id="reset-seed">&olarr;</button>
+                    </section>
+
+                    <label for="progress_images">
+                        Display in-progress images
+                        <small>(slower)</small>
+                    </label>
+                    <input type="checkbox" name="progress_images" id="progress_images">
+                    <button type="button" id="reset-all">Reset to Defaults</button>
+                </fieldset>
+            </details>
+
+            <!-- PRESETS -->
+            <details id="presets-container">
+                <summary>
+                    <label for="presets">Presets</label>
+                </summary>
+                <fieldset id="presets">
+                    <section id="save-preset">
+                        <strong>Save current settings as preset</strong>
+                        <input id="save-preset-description" type="text" placeholder="Description..." />
+                        <button id="save-preset-button" type="button">Save</button>
+                    </section>
+                </fieldset>
+            </details>
+
+            <details>
+                <summary>Variations</summary>
+                <fieldset id="variations">
+                    <label
+                        title="If > 0, generates variations on the initial seed instead of random seeds per iteration. Must be between 0 and 1. Higher values will be more different."
+                        for="variation_amount">Variation amount (0 to disable):</label>
+                    <input value="0" type="number" id="variation_amount" name="variation_amount" step="0.01" min="0"
+                        max="1">
+                    <label title="list of variations to apply, in the format `seed:weight,seed:weight,..."
+                        for="with_variations">With variations:</label>
+                    <input value="" type="text" id="with_variations" name="with_variations"
+                        placeholder="seed:weight,seed:weight,...">
+                </fieldset>
+            </details>
+
+            <details style="display: none">
+                <summary>GFPGAN</summary>
+                <fieldset id="gfpgan">
+                    <label title="Strength of the gfpgan (face fixing) algorithm." for="gfpgan_strength">GPFGAN Strength
+                        (0
+                        to
+                        disable):</label>
+                    <input value="0.8" min="0" max="1" type="number" id="gfpgan_strength" name="gfpgan_strength"
+                        step="0.05">
+                    <label title="Upscaling to perform using ESRGAN." for="upscale_level">Upscaling Level</label>
+                    <select id="upscale_level" name="upscale_level" value="">
+                        <option value="" selected>None</option>
+                        <option value="2">2x</option>
+                        <option value="4">4x</option>
+                    </select>
+                    <label title="Strength of the esrgan (upscaling) algorithm." for="upscale_strength">Upscale
+                        Strength:</label>
+                    <input value="0.75" min="0" max="1" type="number" id="upscale_strength" name="upscale_strength"
+                        step="0.05">
+                </fieldset>
+            </details>
+
+            <details>
+                <summary>Start image</summary>
+                <fieldset id="img2img">
+                    <label title="Upload an image to use img2img" for="initimg">Initial image:</label>
+                    <section class="input-group">
+                        <input type="file" id="initimg" name="initimg" accept=".jpg, .jpeg, .png">
+                        <button type="button" id="remove-image">Remove Image</button>
+                    </section>
+                    <label for="strength">Img2Img Strength:</label>
+                    <section class="input-group">
+                        <input value="0.75" type="number" id="strength" name="strength" step="0.01" min="0" max="1">
+                        <small>0 (close to source) to 1 (far from source)</small>
+                    </section>
+                    <label title="Rescale image to fit within requested width and height" for="fit">Fit to
+                        width/height:</label>
+                    <input type="checkbox" id="fit" name="fit" checked>
+                </fieldset>
+            </details>
+
+            <!-- TODO saved prompts -->
+            <section id="saved-prompts">
+            </section>
+
+        </form>
+
+        <section id="progress-section">
+            <div id="progress-container">
+                <progress id="progress-bar" value="0" max="1"></progress>
+                <span id="cancel-button" title="Cancel">&#10006;</span>
+                <br>
+                <img id="progress-image" src='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"/>'>
+                <div id="scaling-inprocess-message">
+                    <i><span>Postprocessing...</span><span id="processing_cnt">1/3</span></i>
+                </div>
+            </div>
+        </section>
+
+        <div id="results">
+            <div id="no-results-message">
+                <i>
+                    <p>No results...</p>
+                </i>
+            </div>
         </div>
-      </div>
+
+        <footer id="about">
+            For news and support for this web service, visit our <a
+                href="http://github.com/lstein/stable-diffusion">GitHub
+                site</a>
+        </footer>
     </main>
-  </body>
+
+    <script>
+
+        Event.prototype.stop = function () {
+            this.preventDefault()
+            this.stopPropagation()
+            this.stopImmediatePropagation()
+        }
+
+        Object.prototype.on = function (eventName, callback) {
+            this.addEventListener(eventName, callback)
+        }
+
+        Object.prototype.prevent = function () {
+            return {
+                on: (eventName, callback) => {
+                    this.on(eventName, event => {
+                        event.preventDefault()
+                        callback(event)
+                    })
+                }
+            }
+        }
+
+        Object.prototype.stop = function () {
+            return {
+                on: (eventName, callback) => {
+                    this.on(eventName, event => {
+                        event.stop()
+                        callback(event)
+                    })
+                }
+            }
+        }
+
+        function qId(selector) {
+            return document.getElementById(selector)
+        }
+
+        function q(selector) {
+            return document.querySelector(selector)
+        }
+
+        function qAll(selector) {
+            return [...document.querySelectorAll(selector)]
+        }
+
+        function settingsFromString(string = '') {
+            const [sampler, steps, cfgScale, desc] = string.split(';;')
+            return { sampler, steps, cfgScale, desc }
+        }
+
+        window.on('load', () => {
+
+            qId('iterations').addEventListener('change', event => event.stop())
+
+            const elements = {
+                presetButtons: qId('presets-container'),
+                settings: {
+                    sampler: qId('sampler_name'),
+                    steps: qId('steps'),
+                    cfgScale: qId('cfg_scale'),
+                    summary: q('#fieldset-config-container summary>small'),
+                    toString(desc) {
+                        return `${this.sampler.value};;${this.steps.value};;${this.cfgScale.value}${desc != undefined ? ';;' + desc : ''}`
+                    },
+                    toSummary() {
+                        return `${this.sampler.value} / ${this.steps.value} steps / ${this.cfgScale.value} cfg`
+                    },
+                    updateSummary() {
+                        this.summary.innerHTML = this.toSummary()
+                    }
+                },
+                savePresetButton: qId('save-preset-button'),
+            }
+
+            for (const setting of [elements.settings.sampler, elements.settings.steps, elements.settings.cfgScale]) {
+                setting.on('input', elements.settings.updateSummary.bind(elements.settings))
+            }
+
+            elements.settings.updateSummary()
+
+            function bindApplyPreset(button) {
+                button.stop().on('click', event => {
+                    elements.settings.sampler.value = button.dataset.sampler
+                    elements.settings.steps.value = button.dataset.steps
+                    elements.settings.cfgScale.value = button.dataset.cfgScale
+                })
+            }
+
+            elements.savePresetButton.prevent().on('click', event => {
+                console.log('here')
+                const i = localStorage.length
+                const string = elements.settings.toString(qId('save-preset-description').value)
+                localStorage.setItem(`preset-${i}`, string)
+                makePresetButton(string, i)
+            })
+
+            function makePresetButton(presetString, i) {
+                const { sampler, steps, cfgScale, desc } = settingsFromString(presetString)
+                elements.presetButtons.querySelector('summary').insertAdjacentHTML('afterend', `
+                    <button id="preset-button-${i}" data-sampler="${sampler}" data-steps="${steps}" data-cfg-scale="${cfgScale}">
+                        ${desc}<br />
+                        <small>${sampler}, ${steps}, ${cfgScale}</small>
+                    </button>
+                `)
+            }
+
+            // Make saved preset buttons
+
+            for (let i = 0; i <= localStorage.length; i++) {
+                const preset = localStorage.getItem(`preset-${i}`)
+                if (preset) makePresetButton(preset, i)
+            }
+
+            qAll('#presets>button').forEach(bindApplyPreset)
+
+        })
+
+    </script>
+</body>
+
 </html>

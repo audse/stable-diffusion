@@ -186,3 +186,7 @@ testtube
 checkpoints
 # If it's a Mac
 .DS_Store
+
+
+Miniconda3-latest-MacOSX-arm64.sh
+static/dream_web/fonts

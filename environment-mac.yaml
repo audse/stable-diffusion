@@ -1,4 +1,4 @@
-name: ldm
+name: ldmv
 channels:
   - pytorch
   - conda-forge
